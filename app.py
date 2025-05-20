@@ -20,10 +20,22 @@ def webhook():
     else:
         return 'Unsupported Media Type', 415
 
+from telebot import types
+
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, "✅ Бот работает через webhook!")
-
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(
+        types.KeyboardButton("💼 Кошелёк"),
+        types.KeyboardButton("💱 Конвертация"),
+        types.KeyboardButton("📊 Курс"),
+        types.KeyboardButton("📰 Инфо-центр")
+    )
+    bot.send_message(
+        message.chat.id,
+        "Добро пожаловать! Выберите действие:",
+        reply_markup=markup
+    )
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=WEBHOOK_URL)
