@@ -1,9 +1,0 @@
-flask
-python-telegram-bot==20.7
-mnemonic
-bitcoinlib
-eth-account
-tronpy
-solana
-pytelegrambotapi
-bip-utils
