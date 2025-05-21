@@ -24,9 +24,8 @@ def start(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     seed_phrase = generate_wallet()
     save_user(user_id, seed_phrase)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Ваш seed:
-{seed_phrase}")
-
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Ваш seed:\n{seed_phrase}")
+    
 def start_bot():
     updater = Updater(token=TOKEN, use_context=True)
     dp = updater.dispatcher
