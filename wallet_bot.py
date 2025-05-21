@@ -4,7 +4,7 @@ from mnemonic import Mnemonic
 import csv
 import os
 
-TOKEN = "7987309610:AAHJkAlbPTxhToO9iyNvnh6I43kacWSP81M"  # ← Вставь сюда свой токен
+TELEGRAM_BOT_TOKEN = "7987309610:AAHJkAlbPTxhToO9iyNvnh6I43kacWSP81M"  # ← Вставь сюда свой токен
 ADMIN_ID = 123456789               # ← Вставь свой Telegram ID
 
 def generate_wallet():
