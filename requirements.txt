@@ -5,3 +5,5 @@ bitcoinlib
 eth-account
 tronpy
 solana
+pytelegrambotapi
+bip-utils
