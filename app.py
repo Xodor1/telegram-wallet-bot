@@ -1,52 +1,54 @@
 import telebot
 from telebot import types
 from mnemonic import Mnemonic
+from flask import Flask, request
+
 import time
+import os
 
-TOKEN = 7987309610:AAHJkAlbPTxhToO9iyNvnh6I43kacWSP81M # 🔁 Вставь сюда свой токен
+TOKEN = "7987309610:AAHJkAlbPTxhToO9iyNvnh6I43kacWSP81M"  # ✅ вставь свой токен здесь
+bot = telebot.TeleBot(TOKEN, threaded=False)
 
-bot = telebot.TeleBot(TOKEN)
+APP_URL = f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}"
 
-# Сохраняем временные данные пользователей
+app = Flask(__name__)
 user_data = {}
 
+# === Хэндлер старта ===
 @bot.message_handler(commands=['start'])
 def start_message(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("💼 Кошелёк"))
     bot.send_message(message.chat.id, "✅ Бот работает! Нажми «Кошелёк», чтобы начать.", reply_markup=markup)
 
+# === Кошелёк ===
 @bot.message_handler(func=lambda message: message.text == "💼 Кошелёк")
 def wallet_menu(message):
     chat_id = message.chat.id
 
-    # Имитация загрузки
     msg = bot.send_message(chat_id, "⏳ Загружаю кошелёк...")
     time.sleep(2)
     bot.edit_message_text("✅ Кошелёк готов!", chat_id, msg.message_id)
 
-    # Генерация сид-фразы
     mnemo = Mnemonic("english")
-    seed_phrase = mnemo.generate(strength=128)  # 12 слов
+    seed_phrase = mnemo.generate(strength=128)
     seed_words = seed_phrase.split()
+
     user_data[chat_id] = {
         "seed_phrase": seed_phrase,
         "words": seed_words
     }
 
-    # Отправляем сид-фразу
     bot.send_message(chat_id, f"💡 Это ваша сид-фраза:\n\n<code>{seed_phrase}</code>\n\nСкопируйте и сохраните в надёжном месте!", parse_mode="HTML")
-
-    # Запрос подтверждения 3 слов
     bot.send_message(chat_id, "Для подтверждения, введите 7-е слово из вашей сид-фразы:")
-    bot.register_next_step_handler(message, lambda m: confirm_word(m, position=6))  # 7-е слово (index 6)
+    bot.register_next_step_handler(message, lambda m: confirm_word(m, position=6))
 
 def confirm_word(message, position):
     chat_id = message.chat.id
     word = message.text.strip().lower()
 
-    if user_data.get(chat_id) is None or position >= len(user_data[chat_id]["words"]):
-        bot.send_message(chat_id, "❌ Ошибка! Попробуйте заново нажать 'Кошелёк'.")
+    if chat_id not in user_data:
+        bot.send_message(chat_id, "❌ Ошибка. Начните сначала.")
         return
 
     if user_data[chat_id]["words"][position] != word:
@@ -76,10 +78,9 @@ def show_wallet_main_menu(message):
         types.KeyboardButton("🔄 Обмен"),
         types.KeyboardButton("🧾 История")
     )
-
     bot.send_message(message.chat.id, "Вы вошли в кошелёк. Выберите действие:", reply_markup=markup)
 
-# 🔁 Обмен (заглушка)
+# === Обмен криптовалют ===
 @bot.message_handler(func=lambda message: message.text == "🔄 Обмен")
 def exchange_crypto(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -97,7 +98,7 @@ def process_exchange_selection(message):
         return
 
     amount = 100
-    discount = 4  # %
+    discount = 4
     final_amount = amount * (1 - discount / 100)
 
     bot.send_message(
@@ -108,6 +109,20 @@ def process_exchange_selection(message):
         f"Вы получите: ~{round(final_amount, 2)} {token}"
     )
 
-# Запуск бота (через polling)
-if __name__ == '__main__':
-    bot.infinity_polling()
+# === Вебхук ===
+@app.route(f"/{TOKEN}", methods=['POST'])
+def webhook():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "OK", 200
+
+@app.route("/", methods=['GET'])
+def index():
+    return "✅ Webhook работает."
+
+# === Установка вебхука ===
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
