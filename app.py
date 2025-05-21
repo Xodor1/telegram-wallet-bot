@@ -1,6 +1,6 @@
 
 from flask import Flask, send_from_directory
-from bot.wallet_bot import start_bot
+from wallet_bot import start_bot
 import threading
 import os
 
