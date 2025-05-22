@@ -8,10 +8,10 @@ app = Flask(__name__, static_folder="miniapp")
 # Старт Telegram-бота в отдельном потоке
 def run_bot():
     try:
-        telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-        if not telegram_token or not telegram_token.startswith(""):
+        telegram_token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if not telegram_token or not telegram_token.startswith("7987"):
             raise ValueError("TELEGRAM_BOT_TOKEN не установлен или некорректен.")
-        
+
         start_bot(telegram_token)  # передаём токен в функцию бота
     except Exception as e:
         print(f"Ошибка при запуске бота: {e}")
