@@ -32,8 +32,7 @@ def start_bot(token: str, webhook_url: str):
     app = ApplicationBuilder().token(token).build()
     app.add_handler(CommandHandler("start", start))
     app.run_webhook(
-        listen="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
-        webhook_url=webhook_url,
-        webhook_path=os.environ.get("WEBHOOK_PATH", "")
-    )
+    listen="0.0.0.0",
+    port=PORT,
+    webhook_url=WEBHOOK_URL
+)
