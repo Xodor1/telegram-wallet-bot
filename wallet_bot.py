@@ -4,8 +4,7 @@ from mnemonic import Mnemonic
 import csv
 import os
 
-TELEGRAM_BOT_TOKEN = "7987309610:AAHJkAlbPTxhToO9iyNvnh6I43kacWSP81M"  # ← Вставь сюда свой токен
-ADMIN_ID = 123456789               # ← Вставь свой Telegram ID
+ADMIN_ID = 123456789  # ← Замени на свой Telegram ID, если нужно
 
 def generate_wallet():
     mnemo = Mnemonic("english")
@@ -32,8 +31,8 @@ def start(update: Update, context: CallbackContext):
         text=f"Ваш seed:\n{seed_phrase}"
     )
 
-def start_bot():
-    updater = Updater(token=TOKEN, use_context=True)
+def start_bot(token):
+    updater = Updater(token=token, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler("start", start))
     updater.start_polling()
