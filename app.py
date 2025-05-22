@@ -1,29 +1,22 @@
-from flask import Flask, send_from_directory
-from wallet_bot import webhook_handler
+from flask import Flask
+from wallet_bot import start_bot
 import os
 
-app = Flask(__name__, static_folder="miniapp")
+app = Flask(__name__)
 
-# Статические файлы
 @app.route("/")
-def serve_index():
-    return send_from_directory(app.static_folder, "index.html")
-
-@app.route("/<path:path>")
-def serve_static(path):
-    return send_from_directory(app.static_folder, path)
+def index():
+    return "Bot is running with webhook."
 
 if __name__ == '__main__':
-    # Получаем токен и путь webhook
-    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    webhook_path = os.environ.get("WEBHOOK_PATH", "webhook")  # Например, "mybotwebhook123"
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    webhook_path = os.environ.get("WEBHOOK_PATH")
+    if not token or not webhook_path:
+        raise Exception("Токен или webhook path не установлены")
 
-    if not telegram_token:
-        raise Exception("TELEGRAM_BOT_TOKEN не установлен")
+    render_url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not render_url:
+        render_url = "https://your_render_domain.onrender.com"  # ← Заменишь вручную, если нужно
 
-    # Запускаем Webhook-хендлер
-    webhook_handler(app, telegram_token, webhook_path)
-
-    # Запуск Flask-сервера
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    webhook_url = f"{render_url}/{webhook_path}"
+    start_bot(token, webhook_url)
