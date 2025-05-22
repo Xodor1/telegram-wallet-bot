@@ -9,14 +9,20 @@ def index():
     return "Bot is running with webhook."
 
 if __name__ == '__main__':
+    # Получаем токен и путь для webhook из переменных окружения
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     webhook_path = os.environ.get("WEBHOOK_PATH")
-    if not token or not webhook_path:
-        raise Exception("Токен или webhook path не установлены")
 
+    if not token or not webhook_path:
+        raise Exception("Токен (TELEGRAM_BOT_TOKEN) или путь webhook (WEBHOOK_PATH) не установлены")
+
+    # Получаем URL приложения на Render
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
     if not render_url:
-        render_url = "https://your_render_domain.onrender.com"  # ← Заменишь вручную, если нужно
+        render_url = "https://your-render-domain.onrender.com"  # ← можно заменить вручную
 
+    # Формируем полный webhook URL
     webhook_url = f"{render_url}/{webhook_path}"
+
+    # Запускаем Telegram-бота
     start_bot(token, webhook_url)
