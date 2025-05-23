@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask
 from wallet_bot import start_bot
 import os
 
@@ -9,22 +9,20 @@ def index():
     return "Bot is running with webhook."
 
 if __name__ == '__main__':
-    # Получаем токен и путь webhook из переменных окружения
-    token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    webhook_path = os.environ.get("WEBHOOK_PATH")
+    # Telegram bot token
+    token = os.environ.get("TELEGRAM_BOT_TOKEN") or "YOUR_ACTUAL_TELEGRAM_BOT_TOKEN"
+    
+    # Webhook path — произвольно, но должно совпадать с тем, что ты укажешь в Telegram
+    webhook_path = os.environ.get("WEBHOOK_PATH") or "bot-hook"
+    
+    # Render external URL
+    render_url = os.environ.get("RENDER_EXTERNAL_URL") or "https://telegram-wallet-bot-2lyl.onrender.com"
+    
+    if not token:
+        raise Exception("TELEGRAM_BOT_TOKEN is not set")
 
-    if not token or not webhook_path:
-        raise Exception("Токен (TELEGRAM_BOT_TOKEN) или путь webhook (WEBHOOK_PATH) не установлены")
-
-    # Получаем внешний URL Render
-    render_url = os.environ.get("RENDER_EXTERNAL_URL")
-    if not render_url:
-        render_url = "https://your-render-domain.onrender.com"  # Замени вручную если нужно
-
+    # Полный webhook
     webhook_url = f"{render_url}/{webhook_path}"
-
-    # Стартуем Telegram-бота
+    
+    # Запуск бота
     start_bot(token, webhook_url)
-
-    # Запускаем Flask-сервер
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
