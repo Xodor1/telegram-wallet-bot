@@ -29,12 +29,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Ваш seed:\n{seed_phrase}")
 
 def start_bot(token: str, webhook_url: str):
-    port = int(os.environ.get("PORT", 8443))  # стандартный порт для Telegram
-    webhook_url = os.environ.get("WEBHOOK_URL", webhook_url)
-
+    port = int(os.environ.get("PORT", 8443))
     app = ApplicationBuilder().token(token).build()
     app.add_handler(CommandHandler("start", start))
-
     app.run_webhook(
         listen="0.0.0.0",
         port=port,
